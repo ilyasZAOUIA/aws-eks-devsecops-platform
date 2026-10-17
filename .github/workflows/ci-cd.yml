@@ -27,13 +27,15 @@ jobs:
             ./app
 
       - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@v0.33.0
-        with:
-          image-ref: aws-eks-devsecops:${{ github.sha }}
-          format: table
-          exit-code: '1'
-          severity: CRITICAL,HIGH
-          vuln-type: os,library
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.65.0 \
+            image \
+            --exit-code 1 \
+            --severity HIGH,CRITICAL \
+            --scanners vuln \
+            aws-eks-devsecops:${{ github.sha }}
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
